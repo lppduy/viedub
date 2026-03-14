@@ -36,7 +36,7 @@ uvicorn app.main:app --reload   # http://localhost:8000
 
 ## Requirements
 
-- Node.js 20+, pnpm
+- Node.js 24+, pnpm
 - Python 3.11+
 - ffmpeg
 

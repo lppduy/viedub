@@ -2,6 +2,8 @@
 
 AI-powered Vietnamese dubbing & subtitles. Vietnamese-first.
 
+**Author:** Le Pham Phuong Duy ([@lppduy](https://github.com/lppduy))
+
 ## What it does
 
 Upload a video → get Vietnamese subtitles + dubbed audio track.
@@ -42,4 +44,4 @@ uvicorn app.main:app --reload   # http://localhost:8000
 
 ## License
 
-MIT
+[MIT](LICENSE)

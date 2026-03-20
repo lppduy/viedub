@@ -8,7 +8,7 @@ AI-powered Vietnamese dubbing & subtitles. Vietnamese-first.
 
 Upload a video → get Vietnamese subtitles + dubbed audio track.
 
-**Pipeline:** Whisper (transcribe) → OpenAI (translate) → VieNeu TTS (dub)
+**Pipeline:** Whisper (transcribe) → Gemini (translate) → VieNeu TTS (dub)
 
 ## Stack
 
@@ -29,7 +29,11 @@ pnpm dev          # http://localhost:5173
 ### Backend
 
 ```bash
+# Install system dependency
+brew install ffmpeg   # macOS — required for audio extraction
+
 cd backend
+cp .env.example .env  # fill in GEMINI_API_KEY
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -38,9 +42,10 @@ uvicorn app.main:app --reload   # http://localhost:8000
 
 ## Requirements
 
-- Node.js 24+, pnpm
+- Node.js 20+, pnpm
 - Python 3.11+
-- ffmpeg
+- ffmpeg (`brew install ffmpeg` on macOS)
+- Gemini API key (free — get at aistudio.google.com)
 
 ## License
 

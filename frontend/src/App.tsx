@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { UploadForm } from './components/upload-form'
 import { VideoPlayer } from './components/video-player'
 import { DubProgress } from './components/dub-progress'
@@ -43,8 +43,20 @@ function App() {
 
   const isProcessing = dub.status === 'uploading' || dub.status === 'processing'
 
+  // Allow drag-and-drop onto the player page to load a new video
+  const handleDragOver = useCallback((e: React.DragEvent) => e.preventDefault(), [])
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    if (file) handleFileSelect(file)
+  }, [])
+
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-6 gap-4">
+    <div
+      className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-6 gap-4"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
       <div className="w-full max-w-4xl space-y-4">
         <div className="flex items-center justify-between">
           <div>

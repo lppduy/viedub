@@ -1,21 +1,23 @@
 import { useState, useEffect, useRef } from 'react'
 import { UploadForm } from './components/upload-form'
 import { VideoPlayer } from './components/video-player'
+import { DubProgress } from './components/dub-progress'
+import { useDubJob } from './hooks/use-dub-job'
 
 function App() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string>('')
   const blobUrlRef = useRef<string | null>(null)
+  const dub = useDubJob()
 
   // Revoke previous blob URL to free memory
   const handleFileSelect = (file: File) => {
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-    }
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current)
     const url = URL.createObjectURL(file)
     blobUrlRef.current = url
     setFileName(file.name)
     setVideoSrc(url)
+    dub.startDub(file)   // kick off backend pipeline immediately
   }
 
   const handleUploadAnother = () => {
@@ -25,6 +27,7 @@ function App() {
     }
     setVideoSrc(null)
     setFileName('')
+    dub.reset()
   }
 
   // Cleanup on unmount
@@ -37,6 +40,8 @@ function App() {
   if (!videoSrc) {
     return <UploadForm onFileSelect={handleFileSelect} />
   }
+
+  const isProcessing = dub.status === 'uploading' || dub.status === 'processing'
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-6 gap-4">
@@ -56,7 +61,28 @@ function App() {
           </button>
         </div>
 
-        <VideoPlayer src={videoSrc} />
+        <VideoPlayer
+          src={videoSrc}
+          subtitlesSrc={dub.result?.subtitlesUrl}
+          dubbedAudioSrc={dub.result?.audioUrl}
+        />
+
+        {/* Show progress bar while pipeline is running */}
+        {isProcessing && (
+          <div className="flex justify-center">
+            <DubProgress
+              status={dub.status}
+              progress={dub.progress}
+              step={dub.step}
+              error={dub.error}
+            />
+          </div>
+        )}
+
+        {/* Show error if pipeline failed */}
+        {dub.status === 'error' && (
+          <p className="text-center text-red-400 text-sm">{dub.error}</p>
+        )}
 
         <p className="text-center text-gray-700 text-xs">
           Space = play/pause · ← → = seek 5s · ↑ ↓ = volume · M = mute · F = fullscreen

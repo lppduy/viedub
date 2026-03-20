@@ -1,8 +1,10 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { useVideoPlayer, PLAYBACK_SPEEDS } from '../hooks/use-video-player'
 
 interface VideoPlayerProps {
   src: string
+  subtitlesSrc?: string   // WebVTT URL for Vietnamese subtitles
+  dubbedAudioSrc?: string // Dubbed WAV URL; when active, video is muted
 }
 
 function formatTime(seconds: number): string {
@@ -46,8 +48,10 @@ function IconFullscreen() {
   )
 }
 
-export function VideoPlayer({ src }: VideoPlayerProps) {
+export function VideoPlayer({ src, subtitlesSrc, dubbedAudioSrc }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const dubbedAudioRef = useRef<HTMLAudioElement | null>(null)
+  const [isDubbed, setIsDubbed] = useState(false)
   const {
     videoRef,
     isPlaying,
@@ -117,6 +121,27 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
+  // Keep dubbed <audio> in sync with video play/pause/seek
+  useEffect(() => {
+    const video = videoRef.current
+    const audio = dubbedAudioRef.current
+    if (!isDubbed || !audio || !video) return
+
+    audio.currentTime = video.currentTime
+    if (isPlaying) audio.play().catch(() => {})
+    else audio.pause()
+  }, [isDubbed, isPlaying, videoRef])
+
+  // Sync dubbed audio position when user seeks
+  useEffect(() => {
+    const video = videoRef.current
+    const audio = dubbedAudioRef.current
+    if (!isDubbed || !audio || !video) return
+    const onSeeked = () => { audio.currentTime = video.currentTime }
+    video.addEventListener('seeked', onSeeked)
+    return () => video.removeEventListener('seeked', onSeeked)
+  }, [isDubbed, videoRef])
+
   return (
     <div
       ref={containerRef}
@@ -126,9 +151,19 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
       <video
         ref={videoRef}
         src={src}
+        muted={isDubbed}
         className="w-full aspect-video cursor-pointer"
         onClick={togglePlay}
-      />
+      >
+        {subtitlesSrc && (
+          <track kind="subtitles" src={subtitlesSrc} srcLang="vi" label="Tiếng Việt" default />
+        )}
+      </video>
+
+      {/* Dubbed audio — hidden, kept in sync with video */}
+      {dubbedAudioSrc && (
+        <audio ref={dubbedAudioRef} src={dubbedAudioSrc} preload="auto" />
+      )}
 
       {/* Loading spinner */}
       {isLoading && (
@@ -201,6 +236,23 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
               <option key={s} value={s}>{s}x</option>
             ))}
           </select>
+
+          {/* Dubbed audio toggle — only shown when dubbed audio is available */}
+          {dubbedAudioSrc && (
+            <button
+              onClick={() => setIsDubbed(d => !d)}
+              aria-label="Toggle dubbed audio"
+              title={isDubbed ? 'Switch to original audio' : 'Switch to Vietnamese dub'}
+              className={[
+                'text-xs px-2 py-0.5 rounded border transition-colors',
+                isDubbed
+                  ? 'border-blue-400 text-blue-400'
+                  : 'border-gray-600 text-gray-400 hover:border-gray-400',
+              ].join(' ')}
+            >
+              {isDubbed ? 'VI' : 'EN'}
+            </button>
+          )}
 
           {/* Fullscreen */}
           <button

@@ -2,7 +2,7 @@ fastapi>=0.115.0
 uvicorn>=0.34.0
 python-multipart>=0.0.18
 faster-whisper>=1.1.0
-openai>=1.0.0
+google-genai>=1.0.0
 vieneu
 python-dotenv>=1.0.0
 aiofiles>=24.0.0

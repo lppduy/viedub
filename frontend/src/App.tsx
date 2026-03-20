@@ -37,12 +37,6 @@ function App() {
     }
   }, [])
 
-  if (!videoSrc) {
-    return <UploadForm onFileSelect={handleFileSelect} />
-  }
-
-  const isProcessing = dub.status === 'uploading' || dub.status === 'processing'
-
   // Allow drag-and-drop onto the player page to load a new video
   const handleDragOver = useCallback((e: React.DragEvent) => e.preventDefault(), [])
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -50,6 +44,12 @@ function App() {
     const file = e.dataTransfer.files?.[0]
     if (file) handleFileSelect(file)
   }, [])
+
+  if (!videoSrc) {
+    return <UploadForm onFileSelect={handleFileSelect} />
+  }
+
+  const isProcessing = dub.status === 'uploading' || dub.status === 'processing'
 
   return (
     <div

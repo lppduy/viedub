@@ -19,6 +19,9 @@ def _get_provider() -> Callable[[str], str]:
         if name == "gemini":
             from app.services.providers.gemini_translator import translate_text
             _PROVIDERS["gemini"] = translate_text
+        elif name == "openrouter":
+            from app.services.providers.openrouter_translator import translate_text
+            _PROVIDERS["openrouter"] = translate_text
         else:
             raise RuntimeError(f"Unknown TRANSLATE_PROVIDER: {name!r}")
     return _PROVIDERS[name]

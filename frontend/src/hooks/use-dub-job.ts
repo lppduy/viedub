@@ -64,6 +64,13 @@ export function useDubJob() {
     pollRef.current = setInterval(async () => {
       try {
         const res = await fetch(`${API}/api/jobs/${jobId}`)
+        // 404 = job lost (server restarted) — stop polling and surface error
+        if (res.status === 404) {
+          stopPolling()
+          setState(s => ({ ...s, status: 'error', error: 'Job not found — server may have restarted. Please re-upload.' }))
+          return
+        }
+        if (!res.ok) throw new Error(`Poll failed: ${res.status}`)
         const job = await res.json()
 
         if (job.status === 'done') {

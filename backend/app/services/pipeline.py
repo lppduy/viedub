@@ -12,6 +12,7 @@ Steps (with progress %):
 """
 import os
 import shutil
+import tempfile
 import traceback
 from pathlib import Path
 
@@ -24,7 +25,7 @@ from app.services.tts import synthesize_segments
 from app.services.audio_merger import merge_clips
 from app.services.subtitle_generator import generate_vtt
 
-TMP_BASE = Path("/tmp/viedub")
+TMP_BASE = Path(tempfile.gettempdir()) / "viedub"
 
 
 def _update(job: Job, progress: int, step: str) -> None:

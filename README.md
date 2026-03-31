@@ -16,6 +16,13 @@ Upload a video → get Vietnamese subtitles + dubbed audio track.
 - **Backend:** Python FastAPI
 - **Desktop:** Tauri (planned)
 
+## Requirements
+
+- Node.js 20+, pnpm
+- Python 3.11+
+- ffmpeg
+- Gemini API key
+
 ## Quick start
 
 ### Frontend
@@ -28,24 +35,48 @@ pnpm dev          # http://localhost:5173
 
 ### Backend
 
+#### macOS / Linux
+
 ```bash
-# Install system dependency
-brew install ffmpeg   # macOS — required for audio extraction
+# Install ffmpeg
+brew install ffmpeg
 
 cd backend
-cp .env.example .env  # fill in GEMINI_API_KEY
+
+# Configure environment
+cp .env.example .env   # add your GEMINI_API_KEY
+
+# Create & activate virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
+
+# Install dependencies & run
 pip install -r requirements.txt
 uvicorn app.main:app --reload   # http://localhost:8000
 ```
 
-## Requirements
+#### Windows
 
-- Node.js 20+, pnpm
-- Python 3.11+
-- ffmpeg (`brew install ffmpeg` on macOS)
-- Gemini API key (free — get at aistudio.google.com)
+```bash
+# Install ffmpeg
+winget install ffmpeg
+
+cd backend
+
+# Configure environment
+copy .env.example .env   # add your GEMINI_API_KEY
+
+# Create & activate virtual environment
+python -m venv .venv
+.venv\Scripts\activate
+
+# Install prebuilt llama-cpp-python (must be before vieneu)
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+
+# Install dependencies & run
+pip install -r requirements.txt
+uvicorn app.main:app --reload   # http://localhost:8000
+```
 
 ## License
 

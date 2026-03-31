@@ -1,4 +1,5 @@
 """Generate speech for each segment using VieNeu TTS SDK."""
+from __future__ import annotations
 import os
 from pathlib import Path
 from vieneu import Vieneu
